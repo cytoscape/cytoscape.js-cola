@@ -1,0 +1,22 @@
+{
+  "name": "cytoscape-cola",
+  "version": "1.0.0",
+  "description": "The Cola.js physics simulation layout for Cytoscape.js",
+  "main": "cytoscape-cola.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/cytoscape/cytoscape.js-cola.git"
+  },
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "keywords": [
+    "cytoscape",
+    "cyext"
+  ],
+  "license": "LGPL-3.0+"
+}
