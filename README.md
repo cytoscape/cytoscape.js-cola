@@ -28,15 +28,16 @@ Download the library:
 CommonJS:
 ```js
 var cytoscape = require('cytoscape');
-var cola = require('cytoscape-cola');
+var cycola = require('cytoscape-cola');
+var cola = require('cola');
 
-cola( cytoscape ); // register extension
+cycola( cytoscape, cola ); // register extension
 ```
 
 AMD:
 ```js
-require(['cytoscape', 'cytoscape-cola'], function( cytoscape, cola ){
-  cola( cytoscape ); // register extension
+require(['cytoscape', 'cytoscape-cola', 'cola'], function( cytoscape, cycola, cola ){
+  cycola( cytoscape, cola ); // register extension
 });
 ```
 

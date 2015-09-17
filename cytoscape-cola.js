@@ -1,11 +1,13 @@
 ;(function(){ 'use strict';
 
   // registers the extension on a cytoscape lib ref
-  var register = function( cytoscape ){
-    if( !cytoscape ){ return; } // can't register if cytoscape unspecified
+  var register = function( cytoscape, cola ){
+    if( !cytoscape || !cola ){ return; } // can't register if cytoscape unspecified
 
-    var util = cytoscape.util;
-    var is = cytoscape.is;
+    var raf = window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.msRequestAnimationFrame;
+    var isString = function(o){ return typeof o === typeof ''; };
+    var isNumber = function(o){ return typeof o === typeof 0; };
+    var isObject = function(o){ return o != null && typeof o === typeof {}; };
 
     // default layout options
     var defaults = {
@@ -47,7 +49,9 @@
     // constructor
     // options : object containing layout options
     function ColaLayout( options ){
-      this.options = util.extend(true, {}, defaults, options);
+      var opts = this.options = {};
+      for( var i in defaults ){ opts[i] = defaults[i]; }
+      for( var i in options ){ opts[i] = options[i]; }
     }
 
     // runs the layout
@@ -57,425 +61,424 @@
 
       layout.manuallyStopped = false;
 
-      util.require('cola', function(cola){
+      var cy = options.cy; // cy is automatically populated for us in the constructor
+      var eles = options.eles;
+      var nodes = eles.nodes();
+      var edges = eles.edges();
+      var ready = false;
 
-        var cy = options.cy; // cy is automatically populated for us in the constructor
-        var eles = options.eles;
-        var nodes = eles.nodes();
-        var edges = eles.edges();
-        var ready = false;
+      var bb = options.boundingBox || { x1: 0, y1: 0, w: cy.width(), h: cy.height() };
+      if( bb.x2 === undefined ){ bb.x2 = bb.x1 + bb.w; }
+      if( bb.w === undefined ){ bb.w = bb.x2 - bb.x1; }
+      if( bb.y2 === undefined ){ bb.y2 = bb.y1 + bb.h; }
+      if( bb.h === undefined ){ bb.h = bb.y2 - bb.y1; }
 
-        var bb = util.makeBoundingBox( options.boundingBox ? options.boundingBox : {
-          x1: 0, y1: 0, w: cy.width(), h: cy.height()
-        } );
-
-        var getOptVal = function( val, ele ){
-          if( is.fn(val) ){
-            var fn = val;
-            return fn.apply( ele, [ ele ] );
-          } else {
-            return val;
-          }
-        };
-
-        var updateNodePositions = function(){
-          var x = { min: Infinity, max: -Infinity };
-          var y = { min: Infinity, max: -Infinity };
-
-          for( var i = 0; i < nodes.length; i++ ){
-            var node = nodes[i];
-            var scratch = node._private.scratch.cola;
-
-            x.min = Math.min( x.min, scratch.x || 0 );
-            x.max = Math.max( x.max, scratch.x || 0 );
-
-            y.min = Math.min( y.min, scratch.y || 0 );
-            y.max = Math.max( y.max, scratch.y || 0 );
-
-            // update node dims
-            if( !scratch.updatedDims ){
-              var nbb = node.boundingBox();
-              var padding = getOptVal( options.nodeSpacing, node );
-
-              scratch.width = nbb.w + 2*padding;
-              scratch.height = nbb.h + 2*padding;
-            }
-          }
-
-          nodes.positions(function(i, node){
-            var scratch = node._private.scratch.cola;
-            var retPos;
-
-            if( !node.grabbed() && !node.isParent() ){
-              retPos = {
-                x: bb.x1 + scratch.x - x.min,
-                y: bb.y1 + scratch.y - y.min
-              };
-
-              if( !is.number(retPos.x) || !is.number(retPos.y) ){
-                retPos = undefined;
-              }
-            }
-
-            return retPos;
-          });
-
-          nodes.updateCompoundBounds(); // because the way this layout sets positions is buggy for some reason; ref #878
-
-          if( !ready ){
-            onReady();
-            ready = true;
-          }
-
-          if( options.fit ){
-            cy.fit( options.padding );
-          }
-        };
-
-        var onDone = function(){
-          if( options.ungrabifyWhileSimulating ){
-            grabbableNodes.grabify();
-          }
-
-          nodes.off('grab free position', grabHandler);
-          nodes.off('lock unlock', lockHandler);
-
-          // trigger layoutstop when the layout stops (e.g. finishes)
-          layout.one('layoutstop', options.stop);
-          layout.trigger({ type: 'layoutstop', layout: layout });
-        };
-
-        var onReady = function(){
-          // trigger layoutready when each node has had its position set at least once
-          layout.one('layoutready', options.ready);
-          layout.trigger({ type: 'layoutready', layout: layout });
-        };
-
-        var ticksPerFrame = options.refresh;
-        var tickSkip = 1; // frames until a tick; used to slow down sim for debugging
-
-        if( options.refresh < 0 ){
-          tickSkip = Math.abs( options.refresh );
-          ticksPerFrame = 1;
+      var typeoffn = typeof function(){};
+      var getOptVal = function( val, ele ){
+        if( typeof val === typeoffn ){
+          var fn = val;
+          return fn.apply( ele, [ ele ] );
         } else {
-          ticksPerFrame = Math.max( 1, ticksPerFrame ); // at least 1
+          return val;
+        }
+      };
+
+      var updateNodePositions = function(){
+        var x = { min: Infinity, max: -Infinity };
+        var y = { min: Infinity, max: -Infinity };
+
+        for( var i = 0; i < nodes.length; i++ ){
+          var node = nodes[i];
+          var scratch = node._private.scratch.cola;
+
+          x.min = Math.min( x.min, scratch.x || 0 );
+          x.max = Math.max( x.max, scratch.x || 0 );
+
+          y.min = Math.min( y.min, scratch.y || 0 );
+          y.max = Math.max( y.max, scratch.y || 0 );
+
+          // update node dims
+          if( !scratch.updatedDims ){
+            var nbb = node.boundingBox();
+            var padding = getOptVal( options.nodeSpacing, node );
+
+            scratch.width = nbb.w + 2*padding;
+            scratch.height = nbb.h + 2*padding;
+          }
         }
 
-        var adaptor = layout.adaptor = cola.adaptor({
-          trigger: function( e ){ // on sim event
-            var TICK = cola.EventType ? cola.EventType.tick : null;
-            var END = cola.EventType ? cola.EventType.end : null;
+        nodes.positions(function(i, node){
+          var scratch = node._private.scratch.cola;
+          var retPos;
 
-            switch( e.type ){
-              case 'tick':
-              case TICK:
-                if( options.animate ){
-                  updateNodePositions();
-                }
-                break;
-
-              case 'end':
-              case END:
-                updateNodePositions();
-                if( !options.infinite ){ onDone(); }
-                break;
-            }
-          },
-
-          kick: function(){ // kick off the simulation
-            //var skip = 0;
-
-            var inftick = function(){
-              if( layout.manuallyStopped ){
-                onDone();
-
-                return true;
-              }
-
-              var ret = adaptor.tick();
-
-              if( ret && options.infinite ){ // resume layout if done
-                adaptor.resume(); // resume => new kick
-              }
-
-              return ret; // allow regular finish b/c of new kick
+          if( !node.grabbed() && !node.isParent() ){
+            retPos = {
+              x: bb.x1 + scratch.x - x.min,
+              y: bb.y1 + scratch.y - y.min
             };
 
-            var multitick = function(){ // multiple ticks in a row
-              var ret;
-
-              // skip ticks to slow down layout for debugging
-              // var thisSkip = skip;
-              // skip = (skip + 1) % tickSkip;
-              // if( thisSkip !== 0 ){
-              //   return false;
-              // }
-
-              for( var i = 0; i < ticksPerFrame && !ret; i++ ){
-                ret = ret || inftick(); // pick up true ret vals => sim done
-              }
-
-              return ret;
-            };
-
-            if( options.animate ){
-              var frame = function(){
-                if( multitick() ){ return; }
-
-                util.requestAnimationFrame( frame );
-              };
-
-              util.requestAnimationFrame( frame );
-            } else {
-              while( !inftick() ){}
+            if( !isNumber(retPos.x) || !isNumber(retPos.y) ){
+              retPos = undefined;
             }
-          },
+          }
 
-          on: function( type, listener ){}, // dummy; not needed
-
-          drag: function(){} // not needed for our case
+          return retPos;
         });
-        layout.adaptor = adaptor;
 
-        // if set no grabbing during layout
-        var grabbableNodes = nodes.filter(':grabbable');
-        if( options.ungrabifyWhileSimulating ){
-          grabbableNodes.ungrabify();
+        nodes.updateCompoundBounds(); // because the way this layout sets positions is buggy for some reason; ref #878
+
+        if( !ready ){
+          onReady();
+          ready = true;
         }
 
-        // handle node dragging
-        var grabHandler;
-        nodes.on('grab free position', grabHandler = function(e){
-          var node = this;
-          var scrCola = node._private.scratch.cola;
-          var pos = node._private.position;
+        if( options.fit ){
+          cy.fit( options.padding );
+        }
+      };
 
-          // update cola pos obj
-          scrCola.x = pos.x - bb.x1;
-          scrCola.y = pos.y - bb.y1;
+      var onDone = function(){
+        if( options.ungrabifyWhileSimulating ){
+          grabbableNodes.grabify();
+        }
+
+        nodes.off('grab free position', grabHandler);
+        nodes.off('lock unlock', lockHandler);
+
+        // trigger layoutstop when the layout stops (e.g. finishes)
+        layout.one('layoutstop', options.stop);
+        layout.trigger({ type: 'layoutstop', layout: layout });
+      };
+
+      var onReady = function(){
+        // trigger layoutready when each node has had its position set at least once
+        layout.one('layoutready', options.ready);
+        layout.trigger({ type: 'layoutready', layout: layout });
+      };
+
+      var ticksPerFrame = options.refresh;
+      var tickSkip = 1; // frames until a tick; used to slow down sim for debugging
+
+      if( options.refresh < 0 ){
+        tickSkip = Math.abs( options.refresh );
+        ticksPerFrame = 1;
+      } else {
+        ticksPerFrame = Math.max( 1, ticksPerFrame ); // at least 1
+      }
+
+      var adaptor = layout.adaptor = cola.adaptor({
+        trigger: function( e ){ // on sim event
+          var TICK = cola.EventType ? cola.EventType.tick : null;
+          var END = cola.EventType ? cola.EventType.end : null;
 
           switch( e.type ){
-            case 'grab':
-              adaptor.dragstart( scrCola );
-              adaptor.resume();
+            case 'tick':
+            case TICK:
+              if( options.animate ){
+                updateNodePositions();
+              }
               break;
-            case 'free':
-              adaptor.dragend( scrCola );
+
+            case 'end':
+            case END:
+              updateNodePositions();
+              if( !options.infinite ){ onDone(); }
               break;
           }
+        },
 
-        });
+        kick: function(){ // kick off the simulation
+          //var skip = 0;
 
-        var lockHandler;
-        nodes.on('lock unlock', lockHandler = function(e){
-          var node = this;
-          var scrCola = node._private.scratch.cola;
+          var inftick = function(){
+            if( layout.manuallyStopped ){
+              onDone();
 
-          if( node.locked() ){
-            adaptor.dragstart( scrCola );
+              return true;
+            }
+
+            var ret = adaptor.tick();
+
+            if( ret && options.infinite ){ // resume layout if done
+              adaptor.resume(); // resume => new kick
+            }
+
+            return ret; // allow regular finish b/c of new kick
+          };
+
+          var multitick = function(){ // multiple ticks in a row
+            var ret;
+
+            // skip ticks to slow down layout for debugging
+            // var thisSkip = skip;
+            // skip = (skip + 1) % tickSkip;
+            // if( thisSkip !== 0 ){
+            //   return false;
+            // }
+
+            for( var i = 0; i < ticksPerFrame && !ret; i++ ){
+              ret = ret || inftick(); // pick up true ret vals => sim done
+            }
+
+            return ret;
+          };
+
+          if( options.animate ){
+            var frame = function(){
+              if( multitick() ){ return; }
+
+              raf( frame );
+            };
+
+            raf( frame );
           } else {
+            while( !inftick() ){}
+          }
+        },
+
+        on: function( type, listener ){}, // dummy; not needed
+
+        drag: function(){} // not needed for our case
+      });
+      layout.adaptor = adaptor;
+
+      // if set no grabbing during layout
+      var grabbableNodes = nodes.filter(':grabbable');
+      if( options.ungrabifyWhileSimulating ){
+        grabbableNodes.ungrabify();
+      }
+
+      // handle node dragging
+      var grabHandler;
+      nodes.on('grab free position', grabHandler = function(e){
+        var node = this;
+        var scrCola = node._private.scratch.cola;
+        var pos = node._private.position;
+
+        // update cola pos obj
+        scrCola.x = pos.x - bb.x1;
+        scrCola.y = pos.y - bb.y1;
+
+        switch( e.type ){
+          case 'grab':
+            adaptor.dragstart( scrCola );
+            adaptor.resume();
+            break;
+          case 'free':
             adaptor.dragend( scrCola );
-          }
-        });
-
-        var nonparentNodes = nodes.stdFilter(function( node ){
-          return !node.isParent();
-        });
-
-        // add nodes to cola
-        adaptor.nodes( nonparentNodes.map(function( node, i ){
-          var padding = getOptVal( options.nodeSpacing, node );
-          var pos = node.position();
-          var nbb = node.boundingBox();
-
-          var struct = node._private.scratch.cola = {
-            x: options.randomize || pos.x === undefined ? Math.round( Math.random() * bb.w ) : pos.x,
-            y: options.randomize || pos.y === undefined ? Math.round( Math.random() * bb.h ) : pos.y,
-            width: nbb.w + 2*padding,
-            height: nbb.h + 2*padding,
-            index: i
-          };
-
-          return struct;
-        }) );
-
-        if( options.alignment ){ // then set alignment constraints
-
-          var offsetsX = [];
-          var offsetsY = [];
-
-          nonparentNodes.forEach(function( node ){
-            var align = getOptVal( options.alignment, node );
-            var scrCola = node._private.scratch.cola;
-            var index = scrCola.index;
-
-            if( !align ){ return; }
-
-            if( align.x != null ){
-              offsetsX.push({
-                node: index,
-                offset: align.x
-              });
-            }
-
-            if( align.y != null ){
-              offsetsY.push({
-                node: index,
-                offset: align.y
-              });
-            }
-          });
-
-          // add alignment constraints on nodes
-          var constraints = [];
-
-          if( offsetsX.length > 0 ){
-            constraints.push({
-              type: 'alignment',
-              axis: 'x',
-              offsets: offsetsX
-            });
-          }
-
-          if( offsetsY.length > 0 ){
-            constraints.push({
-              type: 'alignment',
-              axis: 'y',
-              offsets: offsetsY
-            });
-          }
-
-          adaptor.constraints( constraints );
-
+            break;
         }
 
-        // add compound nodes to cola
-        adaptor.groups( nodes.stdFilter(function( node ){
-          return node.isParent();
-        }).map(function( node, i ){ // add basic group incl leaf nodes
-          var style = node._private.style;
+      });
 
-          var optPadding = getOptVal( options.nodeSpacing, node );
+      var lockHandler;
+      nodes.on('lock unlock', lockHandler = function(e){
+        var node = this;
+        var scrCola = node._private.scratch.cola;
 
-          var pleft = style['padding-left'].pxValue + optPadding;
-          var pright = style['padding-right'].pxValue + optPadding;
-          var ptop = style['padding-top'].pxValue + optPadding;
-          var pbottom = style['padding-bottom'].pxValue + optPadding;
-
-          node._private.scratch.cola = {
-            index: i,
-
-            padding: Math.max( pleft, pright, ptop, pbottom ),
-
-            leaves: node.descendants().stdFilter(function( child ){
-              return !child.isParent();
-            }).map(function( child ){
-              return child[0]._private.scratch.cola.index;
-            })
-          };
-
-          return node;
-        }).map(function( node ){ // add subgroups
-          node._private.scratch.cola.groups = node.descendants().stdFilter(function( child ){
-            return child.isParent();
-          }).map(function( child ){
-            return child._private.scratch.cola.index;
-          });
-
-          return node._private.scratch.cola;
-        }) );
-
-        // get the edge length setting mechanism
-        var length;
-        var lengthFnName;
-        if( options.edgeLength != null ){
-          length = options.edgeLength;
-          lengthFnName = 'linkDistance';
-        } else if( options.edgeSymDiffLength != null ){
-          length = options.edgeSymDiffLength;
-          lengthFnName = 'symmetricDiffLinkLengths';
-        } else if( options.edgeJaccardLength != null ){
-          length = options.edgeJaccardLength;
-          lengthFnName = 'jaccardLinkLengths';
+        if( node.locked() ){
+          adaptor.dragstart( scrCola );
         } else {
-          length = 100;
-          lengthFnName = 'linkDistance';
+          adaptor.dragend( scrCola );
         }
+      });
 
-        var lengthGetter = function( link ){
-          return link.calcLength;
+      var nonparentNodes = nodes.stdFilter(function( node ){
+        return !node.isParent();
+      });
+
+      // add nodes to cola
+      adaptor.nodes( nonparentNodes.map(function( node, i ){
+        var padding = getOptVal( options.nodeSpacing, node );
+        var pos = node.position();
+        var nbb = node.boundingBox();
+
+        var struct = node._private.scratch.cola = {
+          x: options.randomize || pos.x === undefined ? Math.round( Math.random() * bb.w ) : pos.x,
+          y: options.randomize || pos.y === undefined ? Math.round( Math.random() * bb.h ) : pos.y,
+          width: nbb.w + 2*padding,
+          height: nbb.h + 2*padding,
+          index: i
         };
 
-        // add the edges to cola
-        adaptor.links( edges.stdFilter(function( edge ){
-          return !edge.source().isParent() && !edge.target().isParent();
-        }).map(function( edge, i ){
-          var c = edge._private.scratch.cola = {
-            source: edge.source()[0]._private.scratch.cola.index,
-            target: edge.target()[0]._private.scratch.cola.index
-          };
+        return struct;
+      }) );
 
-          if( length != null ){
-            c.calcLength = getOptVal( length, edge );
+      if( options.alignment ){ // then set alignment constraints
+
+        var offsetsX = [];
+        var offsetsY = [];
+
+        nonparentNodes.forEach(function( node ){
+          var align = getOptVal( options.alignment, node );
+          var scrCola = node._private.scratch.cola;
+          var index = scrCola.index;
+
+          if( !align ){ return; }
+
+          if( align.x != null ){
+            offsetsX.push({
+              node: index,
+              offset: align.x
+            });
           }
 
-          return c;
-        }) );
+          if( align.y != null ){
+            offsetsY.push({
+              node: index,
+              offset: align.y
+            });
+          }
+        });
 
-        adaptor.size([ bb.w, bb.h ]);
+        // add alignment constraints on nodes
+        var constraints = [];
+
+        if( offsetsX.length > 0 ){
+          constraints.push({
+            type: 'alignment',
+            axis: 'x',
+            offsets: offsetsX
+          });
+        }
+
+        if( offsetsY.length > 0 ){
+          constraints.push({
+            type: 'alignment',
+            axis: 'y',
+            offsets: offsetsY
+          });
+        }
+
+        adaptor.constraints( constraints );
+
+      }
+
+      // add compound nodes to cola
+      adaptor.groups( nodes.stdFilter(function( node ){
+        return node.isParent();
+      }).map(function( node, i ){ // add basic group incl leaf nodes
+        var style = node._private.style;
+
+        var optPadding = getOptVal( options.nodeSpacing, node );
+
+        var pleft = style['padding-left'].pxValue + optPadding;
+        var pright = style['padding-right'].pxValue + optPadding;
+        var ptop = style['padding-top'].pxValue + optPadding;
+        var pbottom = style['padding-bottom'].pxValue + optPadding;
+
+        node._private.scratch.cola = {
+          index: i,
+
+          padding: Math.max( pleft, pright, ptop, pbottom ),
+
+          leaves: node.descendants().stdFilter(function( child ){
+            return !child.isParent();
+          }).map(function( child ){
+            return child[0]._private.scratch.cola.index;
+          })
+        };
+
+        return node;
+      }).map(function( node ){ // add subgroups
+        node._private.scratch.cola.groups = node.descendants().stdFilter(function( child ){
+          return child.isParent();
+        }).map(function( child ){
+          return child._private.scratch.cola.index;
+        });
+
+        return node._private.scratch.cola;
+      }) );
+
+      // get the edge length setting mechanism
+      var length;
+      var lengthFnName;
+      if( options.edgeLength != null ){
+        length = options.edgeLength;
+        lengthFnName = 'linkDistance';
+      } else if( options.edgeSymDiffLength != null ){
+        length = options.edgeSymDiffLength;
+        lengthFnName = 'symmetricDiffLinkLengths';
+      } else if( options.edgeJaccardLength != null ){
+        length = options.edgeJaccardLength;
+        lengthFnName = 'jaccardLinkLengths';
+      } else {
+        length = 100;
+        lengthFnName = 'linkDistance';
+      }
+
+      var lengthGetter = function( link ){
+        return link.calcLength;
+      };
+
+      // add the edges to cola
+      adaptor.links( edges.stdFilter(function( edge ){
+        return !edge.source().isParent() && !edge.target().isParent();
+      }).map(function( edge, i ){
+        var c = edge._private.scratch.cola = {
+          source: edge.source()[0]._private.scratch.cola.index,
+          target: edge.target()[0]._private.scratch.cola.index
+        };
 
         if( length != null ){
-          adaptor[ lengthFnName ]( lengthGetter );
+          c.calcLength = getOptVal( length, edge );
         }
 
-        // set the flow of cola
-        if( options.flow ){
-          var flow;
-          var defAxis = 'y';
-          var defMinSep = 50;
+        return c;
+      }) );
 
-          if( is.string(options.flow) ){
-            flow = {
-              axis: options.flow,
-              minSeparation: defMinSep
-            };
-          } else if( is.number(options.flow) ){
-            flow = {
-              axis: defAxis,
-              minSeparation: options.flow
-            };
-          } else if( is.plainObject(options.flow) ){
-            flow = options.flow;
+      adaptor.size([ bb.w, bb.h ]);
 
-            flow.axis = flow.axis || defAxis;
-            flow.minSeparation = flow.minSeparation != null ? flow.minSeparation : defMinSep;
-          } else { // e.g. options.flow: true
-            flow = {
-              axis: defAxis,
-              minSeparation: defMinSep
-            };
+      if( length != null ){
+        adaptor[ lengthFnName ]( lengthGetter );
+      }
+
+      // set the flow of cola
+      if( options.flow ){
+        var flow;
+        var defAxis = 'y';
+        var defMinSep = 50;
+
+        if( isString(options.flow) ){
+          flow = {
+            axis: options.flow,
+            minSeparation: defMinSep
+          };
+        } else if( isNumber(options.flow) ){
+          flow = {
+            axis: defAxis,
+            minSeparation: options.flow
+          };
+        } else if( isObject(options.flow) ){
+          flow = options.flow;
+
+          flow.axis = flow.axis || defAxis;
+          flow.minSeparation = flow.minSeparation != null ? flow.minSeparation : defMinSep;
+        } else { // e.g. options.flow: true
+          flow = {
+            axis: defAxis,
+            minSeparation: defMinSep
+          };
+        }
+
+        adaptor.flowLayout( flow.axis , flow.minSeparation );
+      }
+
+      layout.trigger({ type: 'layoutstart', layout: layout });
+
+      adaptor
+        .avoidOverlaps( options.avoidOverlap )
+        .handleDisconnected( options.handleDisconnected )
+        .start( options.unconstrIter, options.userConstIter, options.allConstIter)
+      ;
+
+      if( !options.infinite ){
+        setTimeout(function(){
+          if( !layout.manuallyStopped ){
+            adaptor.stop();
           }
-
-          adaptor.flowLayout( flow.axis , flow.minSeparation );
-        }
-
-        layout.trigger({ type: 'layoutstart', layout: layout });
-
-        adaptor
-          .avoidOverlaps( options.avoidOverlap )
-          .handleDisconnected( options.handleDisconnected )
-          .start( options.unconstrIter, options.userConstIter, options.allConstIter)
-        ;
-
-        if( !options.infinite ){
-          setTimeout(function(){
-            if( !layout.manuallyStopped ){
-              adaptor.stop();
-            }
-          }, options.maxSimulationTime);
-        }
-
-      }); // require
+        }, options.maxSimulationTime);
+      }
 
       return this; // chaining
     };
@@ -506,7 +509,7 @@
   }
 
   if( typeof cytoscape !== 'undefined' ){ // expose to global cytoscape (i.e. window.cytoscape)
-    register( cytoscape );
+    register( cytoscape, cola );
   }
 
 })();
