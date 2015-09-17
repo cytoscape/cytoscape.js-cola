@@ -89,7 +89,7 @@
 
         for( var i = 0; i < nodes.length; i++ ){
           var node = nodes[i];
-          var scratch = node._private.scratch.cola;
+          var scratch = node.scratch('cola');
 
           x.min = Math.min( x.min, scratch.x || 0 );
           x.max = Math.max( x.max, scratch.x || 0 );
@@ -108,7 +108,7 @@
         }
 
         nodes.positions(function(i, node){
-          var scratch = node._private.scratch.cola;
+          var scratch = node.scratch().cola;
           var retPos;
 
           if( !node.grabbed() && !node.isParent() ){
@@ -252,8 +252,8 @@
       var grabHandler;
       nodes.on('grab free position', grabHandler = function(e){
         var node = this;
-        var scrCola = node._private.scratch.cola;
-        var pos = node._private.position;
+        var scrCola = node.scratch().cola;
+        var pos = node.position();
 
         // update cola pos obj
         scrCola.x = pos.x - bb.x1;
@@ -274,7 +274,7 @@
       var lockHandler;
       nodes.on('lock unlock', lockHandler = function(e){
         var node = this;
-        var scrCola = node._private.scratch.cola;
+        var scrCola = node.scratch().cola;
 
         if( node.locked() ){
           adaptor.dragstart( scrCola );
@@ -293,7 +293,7 @@
         var pos = node.position();
         var nbb = node.boundingBox();
 
-        var struct = node._private.scratch.cola = {
+        var struct = node.scratch().cola = {
           x: options.randomize || pos.x === undefined ? Math.round( Math.random() * bb.w ) : pos.x,
           y: options.randomize || pos.y === undefined ? Math.round( Math.random() * bb.h ) : pos.y,
           width: nbb.w + 2*padding,
@@ -311,7 +311,7 @@
 
         nonparentNodes.forEach(function( node ){
           var align = getOptVal( options.alignment, node );
-          var scrCola = node._private.scratch.cola;
+          var scrCola = node.scratch().cola;
           var index = scrCola.index;
 
           if( !align ){ return; }
@@ -358,16 +358,17 @@
       adaptor.groups( nodes.stdFilter(function( node ){
         return node.isParent();
       }).map(function( node, i ){ // add basic group incl leaf nodes
-        var style = node._private.style;
-
         var optPadding = getOptVal( options.nodeSpacing, node );
+        var getPadding = function(d){
+          return parseFloat( node.style('padding-'+d) );
+        };
 
-        var pleft = style['padding-left'].pxValue + optPadding;
-        var pright = style['padding-right'].pxValue + optPadding;
-        var ptop = style['padding-top'].pxValue + optPadding;
-        var pbottom = style['padding-bottom'].pxValue + optPadding;
+        var pleft = getPadding('left') + optPadding;
+        var pright = getPadding('right') + optPadding;
+        var ptop = getPadding('top') + optPadding;
+        var pbottom = getPadding('bottom') + optPadding;
 
-        node._private.scratch.cola = {
+        node.scratch().cola = {
           index: i,
 
           padding: Math.max( pleft, pright, ptop, pbottom ),
@@ -375,19 +376,19 @@
           leaves: node.descendants().stdFilter(function( child ){
             return !child.isParent();
           }).map(function( child ){
-            return child[0]._private.scratch.cola.index;
+            return child[0].scratch().cola.index;
           })
         };
 
         return node;
       }).map(function( node ){ // add subgroups
-        node._private.scratch.cola.groups = node.descendants().stdFilter(function( child ){
+        node.scratch().cola.groups = node.descendants().stdFilter(function( child ){
           return child.isParent();
         }).map(function( child ){
-          return child._private.scratch.cola.index;
+          return child.scratch().cola.index;
         });
 
-        return node._private.scratch.cola;
+        return node.scratch().cola;
       }) );
 
       // get the edge length setting mechanism
@@ -415,9 +416,9 @@
       adaptor.links( edges.stdFilter(function( edge ){
         return !edge.source().isParent() && !edge.target().isParent();
       }).map(function( edge, i ){
-        var c = edge._private.scratch.cola = {
-          source: edge.source()[0]._private.scratch.cola.index,
-          target: edge.target()[0]._private.scratch.cola.index
+        var c = edge.scratch().cola = {
+          source: edge.source()[0].scratch().cola.index,
+          target: edge.target()[0].scratch().cola.index
         };
 
         if( length != null ){
