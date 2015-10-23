@@ -276,6 +276,8 @@
         var node = this;
         var scrCola = node.scratch().cola;
 
+        scrCola.fixed = node.locked();
+
         if( node.locked() ){
           adaptor.dragstart( scrCola );
         } else {
@@ -298,7 +300,8 @@
           y: options.randomize || pos.y === undefined ? Math.round( Math.random() * bb.h ) : pos.y,
           width: nbb.w + 2*padding,
           height: nbb.h + 2*padding,
-          index: i
+          index: i,
+          fixed: node.locked()
         };
 
         return struct;
@@ -377,7 +380,9 @@
             return !child.isParent();
           }).map(function( child ){
             return child[0].scratch().cola.index;
-          })
+          }),
+
+          fixed: node.locked()
         };
 
         return node;
