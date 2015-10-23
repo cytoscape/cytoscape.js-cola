@@ -7,13 +7,12 @@
 
 		<meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1, maximum-scale=1">
 
-		<script src="http://code.jquery.com/jquery-2.0.3.min.js"></script>
 		<script src="http://cytoscape.github.io/cytoscape.js/api/cytoscape.js-latest/cytoscape.min.js"></script>
 
 		<!-- for testing with local version of cytoscape.js -->
 		<!--<script src="../cytoscape.js/build/cytoscape.js"></script>-->
 
-		<script src="cola.v3.min.js"></script>
+		<script src="http://marvl.infotech.monash.edu/webcola/cola.v3.min.js"></script>
 		<script src="cytoscape-cola.js"></script>
 
 		<style>
@@ -38,7 +37,7 @@
 		</style>
 
 		<script>
-			$(function(){
+			document.addEventListener('DOMContentLoaded', function(){
 
 				var cy = window.cy = cytoscape({
 					container: document.getElementById('cy'),
