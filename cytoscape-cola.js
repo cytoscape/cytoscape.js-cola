@@ -536,7 +536,7 @@ SOFTWARE.
     });
   }
 
-  if( typeof cytoscape !== 'undefined' ){ // expose to global cytoscape (i.e. window.cytoscape)
+  if( typeof cytoscape !== 'undefined' && typeof cola !== 'undefined' ){ // expose to global cytoscape (i.e. window.cytoscape)
     register( cytoscape, cola );
   }
 
