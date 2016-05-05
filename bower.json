@@ -18,5 +18,9 @@
     "cytoscape",
     "cyext"
   ],
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "cytoscape": "^2.4.0",
+    "webcola": "^3.1.2"
+  }
 }

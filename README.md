@@ -12,8 +12,8 @@ It supports noncompound and compound graphs well.
 
 ## Dependencies
 
- * Cytoscape.js >= 2.4.0
- * Cola.js >= 3.1.2
+ * Cytoscape.js ^2.4.0
+ * Cola.js ^3.1.2
 
 
 ## Usage instructions
