@@ -398,7 +398,9 @@ SOFTWARE.
 
           padding: Math.max( pleft, pright, ptop, pbottom ),
 
-          leaves: node.descendants().stdFilter(function( child ){
+          // leaves should only contain direct descendants (children),
+          // not the leaves of nested compound nodes or any nodes that are compounds themselves
+          leaves: node.children().stdFilter(function( child ){
             return !child.isParent();
           }).map(function( child ){
             return child[0].scratch().cola.index;
@@ -409,7 +411,7 @@ SOFTWARE.
 
         return node;
       }).map(function( node ){ // add subgroups
-        node.scratch().cola.groups = node.descendants().stdFilter(function( child ){
+        node.scratch().cola.groups = node.children().stdFilter(function( child ){
           return child.isParent();
         }).map(function( child ){
           return child.scratch().cola.index;
