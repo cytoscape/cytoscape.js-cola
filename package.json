@@ -3,9 +3,6 @@
   "version": "1.4.2",
   "description": "The Cola.js physics simulation layout for Cytoscape.js",
   "main": "cytoscape-cola.js",
-  "spm": {
-    "main": "cytoscape-cola.js"
-  },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
