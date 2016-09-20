@@ -87,6 +87,11 @@ var defaults = {
 ```
 
 
+## Notes
+
+- If you want to maintain interactivity, you probably should not mix `infinite: true` with `fit: true`.  Fitting naturally changes the zoom level, making dragging misaligned and feel weird to users --- though it still works technically.  Better to just `fit: false` when `inifinite: true`, and `cy.center()` or `cy.fit()` on `layoutready`.
+- The `alignment` option isn't as flexible as the raw Cola option.  Here, only integers can be used to specify relative positioning, so it's a bit limited.  If you'd like to see a more sophisticated implementation, please send a pull request.
+
 ## Publishing instructions
 
 This project is set up to automatically be published to npm and bower.  To publish:

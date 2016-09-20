@@ -106,26 +106,16 @@ SOFTWARE.
       };
 
       var updateNodePositions = function(){
-        var x = { min: Infinity, max: -Infinity };
-        var y = { min: Infinity, max: -Infinity };
-
         for( var i = 0; i < nodes.length; i++ ){
           var node = nodes[i];
           var scratch = node.scratch('cola');
 
-          x.min = Math.min( x.min, scratch.x || 0 );
-          x.max = Math.max( x.max, scratch.x || 0 );
-
-          y.min = Math.min( y.min, scratch.y || 0 );
-          y.max = Math.max( y.max, scratch.y || 0 );
-
           // update node dims
           if( !scratch.updatedDims ){
-            var nbb = node.boundingBox();
             var padding = getOptVal( options.nodeSpacing, node );
 
-            scratch.width = nbb.w + 2*padding;
-            scratch.height = nbb.h + 2*padding;
+            scratch.width = node.outerWidth() + 2*padding;
+            scratch.height = node.outerHeight() + 2*padding;
           }
         }
 
@@ -135,8 +125,8 @@ SOFTWARE.
 
           if( !node.grabbed() && !node.isParent() ){
             retPos = {
-              x: bb.x1 + scratch.x - x.min,
-              y: bb.y1 + scratch.y - y.min
+              x: bb.x1 + scratch.x,
+              y: bb.y1 + scratch.y
             };
 
             if( !isNumber(retPos.x) || !isNumber(retPos.y) ){
@@ -283,11 +273,7 @@ SOFTWARE.
         var node = this;
         var scrCola = node.scratch().cola;
         var pos = node.position();
-
-        // update cola pos obj
-        scrCola.x = pos.x - bb.x1;
-        scrCola.y = pos.y - bb.y1;
-
+        
         switch( e.type ){
           case 'grab':
             adaptor.dragstart( scrCola );
@@ -295,6 +281,14 @@ SOFTWARE.
             break;
           case 'free':
             adaptor.dragend( scrCola );
+            break;
+          case 'position':
+            // only update when different (i.e. manual .position() call or drag) so we don't loop needlessly
+            if( scrCola.x !== pos.x - bb.x1 || scrCola.y !== pos.y - bb.y1 ){
+              scrCola.px = pos.x - bb.x1;
+              scrCola.py = pos.y - bb.y1;
+              adaptor.resume();
+            }
             break;
         }
 
