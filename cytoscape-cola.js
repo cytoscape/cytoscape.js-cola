@@ -164,6 +164,8 @@ SOFTWARE.
           grabbableNodes.grabify();
         }
 
+        cy.off('destroy', destroyHandler);
+
         nodes.off('grab free position', grabHandler);
         nodes.off('lock unlock', lockHandler);
 
@@ -269,6 +271,11 @@ SOFTWARE.
       if( options.ungrabifyWhileSimulating ){
         grabbableNodes.ungrabify();
       }
+
+      var destroyHandler;
+      cy.one('destroy', destroyHandler = function(e){
+        layout.stop();
+      });
 
       // handle node dragging
       var grabHandler;
