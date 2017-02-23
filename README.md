@@ -29,9 +29,8 @@ CommonJS:
 ```js
 var cytoscape = require('cytoscape');
 var cycola = require('cytoscape-cola');
-var cola = require('cola');
 
-cycola( cytoscape, cola ); // register extension
+cycola( cytoscape ); // register extension
 ```
 
 AMD:
