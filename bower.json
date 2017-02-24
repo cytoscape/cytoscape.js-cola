@@ -1,6 +1,5 @@
 {
   "name": "cytoscape-cola",
-  "version": "1.5.0",
   "description": "The Cola.js physics simulation layout for Cytoscape.js",
   "main": "cytoscape-cola.js",
   "repository": {
@@ -20,6 +19,6 @@
   ],
   "license": "MIT",
   "dependencies": {
-    "cytoscape": "^2.4.0"
+    "cytoscape": "^2.4.0 | ^3.0.0"
   }
 }
