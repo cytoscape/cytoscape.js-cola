@@ -540,9 +540,7 @@ SOFTWARE.
     module.exports = function( cytoscape, cola ){
       register( cytoscape, cola || require('webcola') );
     };
-  }
-
-  if( typeof define !== 'undefined' && define.amd ){ // expose as an amd/requirejs module
+  } else if( typeof define !== 'undefined' && define.amd ){ // expose as an amd/requirejs module
     define('cytoscape-cola', function(){
       return register;
     });
