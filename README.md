@@ -12,7 +12,7 @@ It supports noncompound and compound graphs well.
 
 ## Dependencies
 
- * Cytoscape.js ^2.4.0
+ * Cytoscape.js ^2.4.0 || ^3.0.0
  * Cola.js ^3.1.2
 
 
