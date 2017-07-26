@@ -1,6 +1,6 @@
 cytoscape-cola
 ================================================================================
-
+[![DOI](https://zenodo.org/badge/42205998.svg)](https://zenodo.org/badge/latestdoi/42205998)
 
 ## Description
 
