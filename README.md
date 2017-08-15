@@ -30,7 +30,7 @@ CommonJS:
 var cytoscape = require('cytoscape');
 var cycola = require('cytoscape-cola');
 
-cycola( cytoscape ); // register extension
+cytoscape.use( cycola );
 ```
 
 AMD:
