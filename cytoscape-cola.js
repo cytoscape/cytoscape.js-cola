@@ -40,6 +40,7 @@ SOFTWARE.
       fit: true, // on every layout reposition of nodes, fit the viewport
       padding: 30, // padding around the simulation
       boundingBox: undefined, // constrain layout bounds; { x1, y1, x2, y2 } or { x1, y1, w, h }
+      nodeDimensionsIncludeLabels: undefined, // whether labels should be included in determining the space used by a node (default true)
 
       // layout event callbacks
       ready: function(){}, // on layoutready
@@ -108,14 +109,15 @@ SOFTWARE.
       var updateNodePositions = function(){
         for( var i = 0; i < nodes.length; i++ ){
           var node = nodes[i];
+          var dimensions = node.layoutDimensions( options );
           var scratch = node.scratch('cola');
 
           // update node dims
           if( !scratch.updatedDims ){
             var padding = getOptVal( options.nodeSpacing, node );
 
-            scratch.width = node.outerWidth() + 2*padding;
-            scratch.height = node.outerHeight() + 2*padding;
+            scratch.width = dimensions.w + 2*padding;
+            scratch.height = dimensions.h + 2*padding;
           }
         }
 
@@ -323,13 +325,13 @@ SOFTWARE.
       adaptor.nodes( nonparentNodes.map(function( node, i ){
         var padding = getOptVal( options.nodeSpacing, node );
         var pos = node.position();
-        var nbb = node.boundingBox();
+        var dimensions = node.layoutDimensions( options );
 
         var struct = node.scratch().cola = {
           x: options.randomize || pos.x === undefined ? Math.round( Math.random() * bb.w ) : pos.x,
           y: options.randomize || pos.y === undefined ? Math.round( Math.random() * bb.h ) : pos.y,
-          width: nbb.w + 2*padding,
-          height: nbb.h + 2*padding,
+          width: dimensions.w + 2*padding,
+          height: dimensions.h + 2*padding,
           index: i,
           fixed: node.locked()
         };
