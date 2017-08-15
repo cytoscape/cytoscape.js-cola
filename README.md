@@ -12,7 +12,7 @@ It supports noncompound and compound graphs well.
 
 ## Dependencies
 
- * Cytoscape.js ^2.4.0 || ^3.0.0
+ * Cytoscape.js ^3.2.0
  * Cola.js ^3.1.2
 
 
@@ -56,6 +56,7 @@ var defaults = {
   fit: true, // on every layout reposition of nodes, fit the viewport
   padding: 30, // padding around the simulation
   boundingBox: undefined, // constrain layout bounds; { x1, y1, x2, y2 } or { x1, y1, w, h }
+  nodeDimensionsIncludeLabels: undefined, // whether labels should be included in determining the space used by a node (default true)
 
   // layout event callbacks
   ready: function(){}, // on layoutready
