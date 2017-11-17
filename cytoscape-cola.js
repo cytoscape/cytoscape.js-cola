@@ -286,7 +286,6 @@ SOFTWARE.
         switch( e.type ){
           case 'grab':
             adaptor.dragstart( scrCola );
-            adaptor.resume();
             break;
           case 'free':
             adaptor.dragend( scrCola );
@@ -296,7 +295,6 @@ SOFTWARE.
             if( scrCola.px !== pos.x - bb.x1 || scrCola.py !== pos.y - bb.y1 ){
               scrCola.px = pos.x - bb.x1;
               scrCola.py = pos.y - bb.y1;
-              adaptor.resume();
             }
             break;
         }
