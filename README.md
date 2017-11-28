@@ -1,10 +1,13 @@
 cytoscape-cola
 ================================================================================
+
 [![DOI](https://zenodo.org/badge/42205998.svg)](https://zenodo.org/badge/latestdoi/42205998)
+
 
 ## Description
 
-The Cola.js physics simulation layout for Cytoscape.js
+The Cola.js physics simulation layout for Cytoscape.js ([demo](https://cytoscape.github.io/cytoscape.js-cola))
+
 
 The `cola` layout uses a [force-directed](http://en.wikipedia.org/wiki/Force-directed_graph_drawing) physics simulation with several sophisticated constraints, written by [Tim Dwyer](http://www.csse.monash.edu.au/~tdwyer/).  For more information about Cola and its parameters, refer to [its documentation](http://marvl.infotech.monash.edu/webcola/).
 
@@ -12,8 +15,8 @@ It supports noncompound and compound graphs well.
 
 ## Dependencies
 
- * Cytoscape.js ^3.2.0
- * Cola.js ^3.1.2
+* Cytoscape.js ^3.2.0
+* Cola.js ^3.1.2
 
 
 ## Usage instructions
@@ -23,24 +26,36 @@ Download the library:
  * via bower: `bower install cytoscape-cola`, or
  * via direct download in the repository (probably from a tag).
 
-`require()` the library as appropriate for your project:
+Import the library as appropriate for your project:
 
-CommonJS:
+ES import:
+
 ```js
-var cytoscape = require('cytoscape');
-var cycola = require('cytoscape-cola');
+import cytoscape from 'cytoscape';
+import cola from 'cytoscape-cola';
 
-cytoscape.use( cycola );
+cytoscape.use( cola );
+```
+
+CommonJS require:
+
+```js
+let cytoscape = require('cytoscape');
+let cola = require('cytoscape-cola');
+
+cytoscape.use( cola ); // register extension
 ```
 
 AMD:
+
 ```js
-require(['cytoscape', 'cytoscape-cola', 'cola'], function( cytoscape, cycola, cola ){
-  cycola( cytoscape, cola ); // register extension
+require(['cytoscape', 'cytoscape-cola'], function( cytoscape, cola ){
+  cola( cytoscape ); // register extension
 });
 ```
 
 Plain HTML/JS has the extension registered for you automatically, because no `require()` is needed.
+
 
 
 ## API
@@ -92,11 +107,27 @@ var defaults = {
 - If you want to maintain interactivity, you probably should not mix `infinite: true` with `fit: true`.  Fitting naturally changes the zoom level, making dragging misaligned and feel weird to users --- though it still works technically.  Better to just `fit: false` when `infinite: true`, and `cy.center()` or `cy.fit()` on `layoutready`.
 - The `alignment` option isn't as flexible as the raw Cola option.  Here, only integers can be used to specify relative positioning, so it's a bit limited.  If you'd like to see a more sophisticated implementation, please send a pull request.
 
+
+
+## Build targets
+
+* `npm run test` : Run Mocha tests in `./test`
+* `npm run build` : Build `./src/**` into `cytoscape-cola.js`
+* `npm run watch` : Automatically build on changes with live reloading (N.b. you must already have an HTTP server running)
+* `npm run dev` : Automatically build on changes with live reloading with webpack dev server
+* `npm run lint` : Run eslint on the source
+
+N.b. all builds use babel, so modern ES features can be used in the `src`.
+
+
 ## Publishing instructions
 
 This project is set up to automatically be published to npm and bower.  To publish:
 
-1. Set the version number environment variable: `export VERSION=1.2.3`
-1. Publish: `gulp publish`
+1. Build the extension : `npm run build`
+1. Commit the build : `git commit -am "Build for release"`
+1. Bump the version number and tag: `npm version major|minor|patch`
+1. Push to origin: `git push && git push --tags`
+1. Publish to npm: `npm publish .`
 1. If publishing to bower for the first time, you'll need to run `bower register cytoscape-cola https://github.com/cytoscape/cytoscape.js-cola.git`
-1. Make a release on GitHub to automatically register a new Zenodo DOI
+1. [Make a new release](https://github.com/cytoscape/cytoscape.js-cola/releases/new) for Zenodo.
