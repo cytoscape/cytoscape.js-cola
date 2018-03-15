@@ -266,6 +266,9 @@ ColaLayout.prototype.run = function(){
     return struct;
   }) );
 
+  // the constraints to be added on nodes
+  let constraints = [];
+
   if( options.alignment ){ // then set alignment constraints
 
     let offsetsX = [];
@@ -293,9 +296,6 @@ ColaLayout.prototype.run = function(){
       }
     });
 
-    // add alignment constraints on nodes
-    let constraints = [];
-
     if( offsetsX.length > 0 ){
       constraints.push({
         type: 'alignment',
@@ -312,8 +312,31 @@ ColaLayout.prototype.run = function(){
       });
     }
 
-    adaptor.constraints( constraints );
+  }
 
+  // if gapInequalities variable is set add each inequality constraint to list of constraints
+  if ( options.gapInequalities ) {
+    options.gapInequalities.forEach( inequality => {
+
+      // for the constraints to be passed to cola layout adaptor use indices of nodes,
+      // not the nodes themselves
+      let leftIndex = inequality.left.scratch().cola.index;
+      let rightIndex = inequality.right.scratch().cola.index;
+
+      constraints.push({
+        axis: inequality.axis,
+        left: leftIndex,
+        right: rightIndex,
+        gap: inequality.gap,
+        equality: inequality.equality
+      });
+
+    } );
+  }
+
+  // add constraints if any
+  if ( constraints.length > 0 ) {
+      adaptor.constraints( constraints );
   }
 
   // add compound nodes to cola

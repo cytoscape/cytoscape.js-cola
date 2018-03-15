@@ -378,6 +378,9 @@ ColaLayout.prototype.run = function () {
     return struct;
   }));
 
+  // the constraints to be added on nodes
+  var constraints = [];
+
   if (options.alignment) {
     // then set alignment constraints
 
@@ -408,9 +411,6 @@ ColaLayout.prototype.run = function () {
       }
     });
 
-    // add alignment constraints on nodes
-    var constraints = [];
-
     if (offsetsX.length > 0) {
       constraints.push({
         type: 'alignment',
@@ -426,7 +426,29 @@ ColaLayout.prototype.run = function () {
         offsets: offsetsY
       });
     }
+  }
 
+  // if gapInequalities variable is set add each inequality constraint to list of constraints
+  if (options.gapInequalities) {
+    options.gapInequalities.forEach(function (inequality) {
+
+      // for the constraints to be passed to cola layout adaptor use indices of nodes,
+      // not the nodes themselves
+      var leftIndex = inequality.left.scratch().cola.index;
+      var rightIndex = inequality.right.scratch().cola.index;
+
+      constraints.push({
+        axis: inequality.axis,
+        left: leftIndex,
+        right: rightIndex,
+        gap: inequality.gap,
+        equality: inequality.equality
+      });
+    });
+  }
+
+  // add constraints if any
+  if (constraints.length > 0) {
     adaptor.constraints(constraints);
   }
 
@@ -629,6 +651,7 @@ var defaults = {
   }, // extra spacing around nodes
   flow: undefined, // use DAG/tree flow layout if specified, e.g. { axis: 'y', minSeparation: 30 }
   alignment: undefined, // relative alignment constraints on nodes, e.g. function( node ){ return { x: 0, y: 1 } }
+  gapInequalities: undefined, // list of inequality constraints for the gap between the nodes, e.g. [{"axis":"y", "left":node1, "right":node2, "gap":25}]
 
   // different methods of specifying edge length
   // each can be a constant numerical value or a function like `function( edge ){ return 2; }`
