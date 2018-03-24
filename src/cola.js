@@ -37,7 +37,7 @@ ColaLayout.prototype.run = function(){
   let ready = false;
 
   let isPresent = function(node) {
-    return this.getElementById(node.id());
+    return this.getElementById(node.id()).length;
   };
 
   let parentNodes = nodes.stdFilter(function(node) {
