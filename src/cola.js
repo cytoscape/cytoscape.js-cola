@@ -36,6 +36,15 @@ ColaLayout.prototype.run = function(){
   let edges = eles.edges();
   let ready = false;
 
+  let isPresent = function(node) {
+    return this.getElementById(node.id());
+  };
+
+  let parentNodes = nodes.stdFilter(function(node) {
+    return node.children().some(isPresent.bind(nodes));
+  });
+  let nonparentNodes = nodes.subtract(parentNodes);
+
   let bb = options.boundingBox || { x1: 0, y1: 0, w: cy.width(), h: cy.height() };
   if( bb.x2 === undefined ){ bb.x2 = bb.x1 + bb.w; }
   if( bb.w === undefined ){ bb.w = bb.x2 - bb.x1; }
@@ -65,7 +74,7 @@ ColaLayout.prototype.run = function(){
       let scratch = node.scratch().cola;
       let retPos;
 
-      if( !node.grabbed() && !node.isParent() ){
+      if( !node.grabbed() && isPresent.call(nonparentNodes, node) ){
         retPos = {
           x: bb.x1 + scratch.x,
           y: bb.y1 + scratch.y
@@ -244,10 +253,6 @@ ColaLayout.prototype.run = function(){
     }
   });
 
-  let nonparentNodes = nodes.stdFilter(function( node ){
-    return !node.isParent();
-  });
-
   // add nodes to cola
   adaptor.nodes( nonparentNodes.map(function( node, i ){
     let padding = getOptVal( options.nodeSpacing, node );
@@ -340,9 +345,7 @@ ColaLayout.prototype.run = function(){
   }
 
   // add compound nodes to cola
-  adaptor.groups( nodes.stdFilter(function( node ){
-    return node.isParent();
-  }).map(function( node, i ){ // add basic group incl leaf nodes
+  adaptor.groups( parentNodes.map(function( node, i ){ // add basic group incl leaf nodes
     let optPadding = getOptVal( options.nodeSpacing, node );
     let getPadding = function(d){
       return parseFloat( node.style('padding-'+d) );
@@ -360,9 +363,9 @@ ColaLayout.prototype.run = function(){
 
       // leaves should only contain direct descendants (children),
       // not the leaves of nested compound nodes or any nodes that are compounds themselves
-      leaves: node.children().stdFilter(function( child ){
-        return !child.isParent();
-      }).map(function( child ){
+      leaves: node.children()
+      .intersection(nonparentNodes)
+      .map(function( child ){
         return child[0].scratch().cola.index;
       }),
 
@@ -371,9 +374,9 @@ ColaLayout.prototype.run = function(){
 
     return node;
   }).map(function( node ){ // add subgroups
-    node.scratch().cola.groups = node.children().stdFilter(function( child ){
-      return child.isParent();
-    }).map(function( child ){
+    node.scratch().cola.groups = node.children()
+    .intersection(parentNodes)
+    .map(function( child ){
       return child.scratch().cola.index;
     });
 
@@ -403,7 +406,7 @@ ColaLayout.prototype.run = function(){
 
   // add the edges to cola
   adaptor.links( edges.stdFilter(function( edge ){
-    return !edge.source().isParent() && !edge.target().isParent();
+    return isPresent.call(nonparentNodes, edge.source()) && isPresent.call(nonparentNodes, edge.target());
   }).map(function( edge ){
     let c = edge.scratch().cola = {
       source: edge.source()[0].scratch().cola.index,
