@@ -7,7 +7,7 @@
 		exports["cytoscapeCola"] = factory(require("webcola"));
 	else
 		root["cytoscapeCola"] = factory(root["webcola"]);
-})(this, function(__WEBPACK_EXTERNAL_MODULE_4__) {
+})(this, function(__WEBPACK_EXTERNAL_MODULE_5__) {
 return /******/ (function(modules) { // webpackBootstrap
 /******/ 	// The module cache
 /******/ 	var installedModules = {};
@@ -87,8 +87,8 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 
 var assign = __webpack_require__(1);
 var defaults = __webpack_require__(2);
-var cola = __webpack_require__(4) || (typeof window !== 'undefined' ? window.cola : null);
-var raf = window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.msRequestAnimationFrame;
+var cola = __webpack_require__(5) || (typeof window !== 'undefined' ? window.cola : null);
+var raf = __webpack_require__(4);
 var isString = function isString(o) {
   return (typeof o === 'undefined' ? 'undefined' : _typeof(o)) === _typeof('');
 };
@@ -697,9 +697,31 @@ module.exports = register;
 
 /***/ }),
 /* 4 */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
+
+var raf = void 0;
+
+if ((typeof window === "undefined" ? "undefined" : _typeof(window)) !== ( true ? "undefined" : _typeof(undefined))) {
+  raf = window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.msRequestAnimationFrame;
+} else {
+  // if not available, all you get is immediate calls
+  raf = function raf(cb) {
+    cb();
+  };
+}
+
+module.exports = raf;
+
+/***/ }),
+/* 5 */
 /***/ (function(module, exports) {
 
-module.exports = __WEBPACK_EXTERNAL_MODULE_4__;
+module.exports = __WEBPACK_EXTERNAL_MODULE_5__;
 
 /***/ })
 /******/ ]);

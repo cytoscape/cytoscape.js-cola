@@ -1,7 +1,7 @@
 const assign = require('./assign');
 const defaults = require('./defaults');
 const cola = require('webcola') || ( typeof window !== 'undefined' ? window.cola : null );
-const raf = window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.msRequestAnimationFrame;
+const raf = require('./raf');
 const isString = function(o){ return typeof o === typeof ''; };
 const isNumber = function(o){ return typeof o === typeof 0; };
 const isObject = function(o){ return o != null && typeof o === typeof {}; };
