@@ -71,7 +71,7 @@ var defaults = {
   fit: true, // on every layout reposition of nodes, fit the viewport
   padding: 30, // padding around the simulation
   boundingBox: undefined, // constrain layout bounds; { x1, y1, x2, y2 } or { x1, y1, w, h }
-  nodeDimensionsIncludeLabels: undefined, // whether labels should be included in determining the space used by a node (default true)
+  nodeDimensionsIncludeLabels: false, // whether labels should be included in determining the space used by a node
 
   // layout event callbacks
   ready: function(){}, // on layoutready
