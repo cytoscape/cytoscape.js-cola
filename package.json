@@ -1,6 +1,6 @@
 {
   "name": "cytoscape-cola",
-  "version": "2.2.0",
+  "version": "2.2.1",
   "description": "The Cola.js physics simulation layout for Cytoscape.js",
   "main": "cytoscape-cola.js",
   "author": {
