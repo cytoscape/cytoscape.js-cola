@@ -63,11 +63,7 @@ ColaLayout.prototype.run = function(){
       }
     }
 
-    nodes.positions(function(node, i){
-      // Perform 2.x and 1.x backwards compatibility check
-      if( isNumber(node) ){
-        node = i;
-      }
+    nodes.positions(function(node){
       let scratch = node.scratch().cola;
       let retPos;
 
