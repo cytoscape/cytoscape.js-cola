@@ -6,7 +6,7 @@ cytoscape-cola
 
 ## Description
 
-The Cola.js physics simulation layout for Cytoscape.js ([demo](https://cytoscape.github.io/cytoscape.js-cola))
+The Cola.js physics simulation layout for Cytoscape.js ([demo](https://cytoscape.github.io/cytoscape.js-cola), [compound demo](https://cytoscape.github.io/cytoscape.js-cola/demo-compound.html))
 
 
 The `cola` layout uses a [force-directed](http://en.wikipedia.org/wiki/Force-directed_graph_drawing) physics simulation with several sophisticated constraints, written by [Tim Dwyer](http://www.csse.monash.edu.au/~tdwyer/).  For more information about Cola and its parameters, refer to [its documentation](http://marvl.infotech.monash.edu/webcola/).
