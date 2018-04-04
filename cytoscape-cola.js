@@ -131,9 +131,12 @@ ColaLayout.prototype.run = function () {
   var edges = eles.edges();
   var ready = false;
 
-  var parentNodes = nodes.stdFilter(function (node) {
-    return node.children().some(nodes.contains.bind(nodes));
-  });
+  var isParent = function isParent(ele) {
+    return ele.isParent();
+  };
+
+  var parentNodes = nodes.filter(isParent);
+
   var nonparentNodes = nodes.subtract(parentNodes);
 
   var bb = options.boundingBox || { x1: 0, y1: 0, w: cy.width(), h: cy.height() };
@@ -165,11 +168,7 @@ ColaLayout.prototype.run = function () {
       }
     }
 
-    nodes.positions(function (node, i) {
-      // Perform 2.x and 1.x backwards compatibility check
-      if (isNumber(node)) {
-        node = i;
-      }
+    nodes.positions(function (node) {
       var scratch = node.scratch().cola;
       var retPos = void 0;
 
