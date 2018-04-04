@@ -131,12 +131,8 @@ ColaLayout.prototype.run = function () {
   var edges = eles.edges();
   var ready = false;
 
-  var isPresent = function isPresent(node) {
-    return this.getElementById(node.id()).length;
-  };
-
   var parentNodes = nodes.stdFilter(function (node) {
-    return node.children().some(isPresent.bind(nodes));
+    return node.children().some(nodes.contains.bind(nodes));
   });
   var nonparentNodes = nodes.subtract(parentNodes);
 
@@ -177,7 +173,7 @@ ColaLayout.prototype.run = function () {
       var scratch = node.scratch().cola;
       var retPos = void 0;
 
-      if (!node.grabbed() && isPresent.call(nonparentNodes, node)) {
+      if (!node.grabbed() && nonparentNodes.contains(node)) {
         retPos = {
           x: bb.x1 + scratch.x,
           y: bb.y1 + scratch.y
@@ -517,7 +513,7 @@ ColaLayout.prototype.run = function () {
 
   // add the edges to cola
   adaptor.links(edges.stdFilter(function (edge) {
-    return isPresent.call(nonparentNodes, edge.source()) && isPresent.call(nonparentNodes, edge.target());
+    return nonparentNodes.contains(edge.source()) && nonparentNodes.contains(edge.target());
   }).map(function (edge) {
     var c = edge.scratch().cola = {
       source: edge.source()[0].scratch().cola.index,
