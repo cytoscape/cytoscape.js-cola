@@ -36,9 +36,10 @@ ColaLayout.prototype.run = function(){
   let edges = eles.edges();
   let ready = false;
 
-  let parentNodes = nodes.stdFilter(function(node) {
-    return node.children().some(nodes.contains.bind(nodes));
-  });
+  let isParent = ele => ele.isParent();
+
+  let parentNodes = nodes.filter(isParent);
+
   let nonparentNodes = nodes.subtract(parentNodes);
 
   let bb = options.boundingBox || { x1: 0, y1: 0, w: cy.width(), h: cy.height() };
