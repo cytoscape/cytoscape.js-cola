@@ -605,7 +605,9 @@ module.exports = Object.assign != null ? Object.assign.bind(Object) : function (
     srcs[_key - 1] = arguments[_key];
   }
 
-  srcs.forEach(function (src) {
+  srcs.filter(function (src) {
+    return src != null;
+  }).forEach(function (src) {
     Object.keys(src).forEach(function (k) {
       return tgt[k] = src[k];
     });
@@ -701,7 +703,9 @@ var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol
 var raf = void 0;
 
 if ((typeof window === "undefined" ? "undefined" : _typeof(window)) !== ( true ? "undefined" : _typeof(undefined))) {
-  raf = window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.msRequestAnimationFrame;
+  raf = window.requestAnimationFrame || window.webkitRequestAnimationFrame || window.mozRequestAnimationFrame || window.msRequestAnimationFrame || function (fn) {
+    return setTimeout(fn, 16);
+  };
 } else {
   // if not available, all you get is immediate calls
   raf = function raf(cb) {
