@@ -255,6 +255,8 @@ ColaLayout.prototype.run = function () {
       // kick off the simulation
       //let skip = 0;
 
+      var firstTick = true;
+
       var inftick = function inftick() {
         if (layout.manuallyStopped) {
           onDone();
@@ -263,6 +265,12 @@ ColaLayout.prototype.run = function () {
         }
 
         var ret = adaptor.tick();
+
+        if (!options.infinite && !firstTick) {
+          adaptor.convergenceThreshold(options.convergenceThreshold);
+        }
+
+        firstTick = false;
 
         if (ret && options.infinite) {
           // resume layout if done
@@ -642,6 +650,7 @@ var defaults = {
   randomize: false, // use random node positions at beginning of layout
   avoidOverlap: true, // if true, prevents overlap of node bounding boxes
   handleDisconnected: true, // if true, avoids disconnected components from overlapping
+  convergenceThreshold: 0.01, // when the alpha value (system energy) falls below this value, the layout stops
   nodeSpacing: function nodeSpacing(node) {
     return 10;
   }, // extra spacing around nodes
