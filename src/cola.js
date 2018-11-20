@@ -146,6 +146,8 @@ ColaLayout.prototype.run = function(){
     kick: function(){ // kick off the simulation
       //let skip = 0;
 
+      let firstTick = true;
+
       let inftick = function(){
         if( layout.manuallyStopped ){
           onDone();
@@ -154,6 +156,12 @@ ColaLayout.prototype.run = function(){
         }
 
         let ret = adaptor.tick();
+
+        if( !options.infinite && !firstTick ){
+          adaptor.convergenceThreshold(options.convergenceThreshold);
+        }
+
+        firstTick = false;
 
         if( ret && options.infinite ){ // resume layout if done
           adaptor.resume(); // resume => new kick
