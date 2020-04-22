@@ -98,16 +98,12 @@ var defaults = {
   unconstrIter: undefined, // unconstrained initial layout iterations
   userConstIter: undefined, // initial layout iterations with user-specified constraints
   allConstIter: undefined, // initial layout iterations with all constraints including non-overlap
-
-  // infinite layout options
-  infinite: false // overrides all other options for a forces-all-the-time mode
 };
 ```
 
 
 ## Notes
 
-- If you want to maintain interactivity, you probably should not mix `infinite: true` with `fit: true`.  Fitting naturally changes the zoom level, making dragging misaligned and feel weird to users --- though it still works technically.  Better to just `fit: false` when `infinite: true`, and `cy.center()` or `cy.fit()` on `layoutready`.
 - The `alignment` option isn't as flexible as the raw Cola option.  Here, only integers can be used to specify relative positioning, so it's a bit limited.  If you'd like to see a more sophisticated implementation, please send a pull request.
 
 
