@@ -85,7 +85,7 @@ var defaults = {
   convergenceThreshold: 0.01, // when the alpha value (system energy) falls below this value, the layout stops
   nodeSpacing: function( node ){ return 10; }, // extra spacing around nodes
   flow: undefined, // use DAG/tree flow layout if specified, e.g. { axis: 'y', minSeparation: 30 }
-  alignment: undefined, // relative alignment constraints on nodes, e.g. function( node ){ return { x: 0, y: 1 } }
+  alignment: undefined, // relative alignment constraints on nodes, e.g. {vertical: [['n1', 'n2')], ['n3', 'n4']], horizontal: [['n5', 'n6']]}
   gapInequalities: undefined, // list of inequality constraints for the gap between the nodes, e.g. [{"axis":"y", "left":node1, "right":node2, "gap":25}]
 
   // different methods of specifying edge length
