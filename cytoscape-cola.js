@@ -375,8 +375,8 @@ ColaLayout.prototype.run = function () {
     var dimensions = node.layoutDimensions(options);
 
     var struct = node.scratch().cola = {
-      x: options.randomize || pos.x === undefined ? Math.round(Math.random() * bb.w) : pos.x,
-      y: options.randomize || pos.y === undefined ? Math.round(Math.random() * bb.h) : pos.y,
+      x: options.randomize && !node.locked() || pos.x === undefined ? Math.round(Math.random() * bb.w) : pos.x,
+      y: options.randomize && !node.locked() || pos.y === undefined ? Math.round(Math.random() * bb.h) : pos.y,
       width: dimensions.w + 2 * padding,
       height: dimensions.h + 2 * padding,
       index: i,
