@@ -1,0 +1,180 @@
+<!DOCTYPE>
+
+<html>
+
+	<head>
+		<title>cytoscape-cola.js demo</title>
+
+		<meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1, maximum-scale=1">
+
+		<script src="https://unpkg.com/cytoscape/dist/cytoscape.min.js"></script>
+
+		<!-- for testing with local version of cytoscape.js -->
+		<!--<script src="../cytoscape.js/build/cytoscape.js"></script>-->
+
+		<script src="https://unpkg.com/webcola/WebCola/cola.min.js"></script>
+		<script src="cytoscape-cola.js"></script>
+
+		<style>
+			body {
+				font-family: helvetica;
+				font-size: 14px;
+			}
+
+			#cy {
+				width: 100%;
+				height: 100%;
+				position: absolute;
+				left: 0;
+				top: 0;
+				z-index: 999;
+			}
+
+			h1 {
+				opacity: 0.5;
+				font-size: 1em;
+			}
+		</style>
+
+		<script>
+			document.addEventListener('DOMContentLoaded', function(){
+
+				var cy = window.cy = cytoscape({
+					container: document.getElementById('cy'),
+
+					boxSelectionEnabled: false,
+
+					layout: {
+            name: 'cola',
+            convergenceThreshold: 100, // end layout sooner, may be a bit lower quality
+            animate: false
+					},
+
+					style: [
+						{
+							selector: 'node',
+							css: {
+								'background-color': '#f92411',
+								'content': 'data(label)',
+								'width': 'data(size)',
+								'height': 'data(size)'
+							}
+						},
+
+						{
+							selector: 'edge',
+							css: {
+								'line-color': '#f92411'
+							}
+						}
+					],
+
+					elements: {
+					  nodes: [
+					    {
+					      data: {
+					        id: "1",
+					        label: "n1",
+					        size: 30
+					      }
+					    },
+					    {
+					      data: {
+					        id: "2",
+					        label: "n2",
+					        size: 50
+					      }
+					    },
+					    {
+					      data: {
+					        id: "3",
+					        label: "n3",
+					        size: 30
+					      }
+					    },
+					    {
+					      data: {
+					        id: "4",
+					        label: "n4",
+					        size: 50
+					      }
+					    },
+					    {
+					      data: {
+					        id: "5",
+					        label: "n5",
+					        size: 30
+					      }
+					    },
+					    {
+					      data: {
+					        id: "6",
+					        label: "n6",
+					        size: 50
+					      }
+					    }
+					    ],
+					    edges: [
+					    {
+					      data: {
+					        source: "1",
+					        target: "2"
+					      }
+					    },
+					    {
+					      data: {
+					        source: "1",
+					        target: "3"
+					      }
+					    },
+					    {
+					      data: {
+					        source: "3",
+					        target: "4"
+					      }
+					    },
+					    {
+					      data: {
+					        source: "3",
+					        target: "5"
+					      }
+					    },
+					    {
+					      data: {
+					        source: "5",
+					        target: "6"
+					      }
+					    }
+					  ]
+					}
+				});
+				// fix node n1 to x:100, y:100
+				cy.$id('3').position({x: 100, y:100}).lock();
+
+				cy.layout({name: 'cola', randomize: true, animate: false, padding: 100,
+					alignment: {vertical: [[{node: cy.$id('1'), offset: 0}, {node: cy.$id('2'), offset: 10}], 
+						[{node: cy.$id('3'), offset: 0}, {node: cy.$id('4'), offset: 0}], 
+						[{node: cy.$id('5'), offset: 0}, {node: cy.$id('6'), offset: -10}]],
+						horizontal: [[{node: cy.$id('1')}, {node: cy.$id('3')}, {node: cy.$id('5')}]]},
+          gapInequalities: [{"axis":"x", "left": cy.$id('1'), "right": cy.$id('3'), "gap":100, 'equality': true},
+						{"axis":"x", "left": cy.$id('3'), "right": cy.$id('5'), "gap":100, 'equality': true}]}).run();
+
+			});
+		</script>
+	</head>
+
+	<body>
+		<h1>cytoscape-cola demo</h1>
+		<p>n3 is fixed to x: 100, y: 100</p>
+		<p>n1 - n2 vertical alignment on left side</p>
+		<p>n3 - n4 vertical alignment on center</p>
+		<p>n5 - n6 vertical alignment on right side</p>
+		<p>n1 - n3 - n5 horizontal alignment</p>
+		<p>n1.x + 100 = n3.x</p>
+		<p>n3.x + 100 = n5.x</p>
+
+		<div id="cy"></div>
+
+	</body>
+
+</html>
