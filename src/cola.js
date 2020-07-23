@@ -281,13 +281,13 @@ ColaLayout.prototype.run = function(){
       let verticalAlignments = options.alignment.vertical;
       verticalAlignments.forEach(function(alignment){
         let offsetsX = [];
-        alignment.forEach(function(nodeId){
-          let node = cy.getElementById(nodeId);
+        alignment.forEach(function(nodeData){
+          let node = nodeData.node;
           let scrCola = node.scratch().cola;
           let index = scrCola.index;
           offsetsX.push({
             node: index,
-            offset: 0
+            offset: nodeData.offset ? nodeData.offset : 0
           });
         });
         constraints.push({
@@ -302,13 +302,13 @@ ColaLayout.prototype.run = function(){
       let horizontalAlignments = options.alignment.horizontal;
       horizontalAlignments.forEach(function(alignment){
         let offsetsY = [];
-        alignment.forEach(function(nodeId){
-          let node = cy.getElementById(nodeId);
+        alignment.forEach(function(nodeData){
+          let node = nodeData.node;
           let scrCola = node.scratch().cola;
           let index = scrCola.index;
           offsetsY.push({
             node: index,
-            offset: 0
+            offset: nodeData.offset ? nodeData.offset : 0
           });
         });
         constraints.push({
