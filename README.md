@@ -6,7 +6,7 @@ cytoscape-cola
 
 ## Description
 
-The Cola.js physics simulation layout for Cytoscape.js ([demo](https://cytoscape.github.io/cytoscape.js-cola), [non-animated demo](https://cytoscape.github.io/cytoscape.js-cola/demo-non-animated.html), [compound demo](https://cytoscape.github.io/cytoscape.js-cola/demo-compound.html))
+The Cola.js physics simulation layout for Cytoscape.js ([demo](https://cytoscape.github.io/cytoscape.js-cola), [non-animated demo](https://cytoscape.github.io/cytoscape.js-cola/demo-non-animated.html), [compound demo](https://cytoscape.github.io/cytoscape.js-cola/demo-compound.html), [constraint demo](https://cytoscape.github.io/cytoscape.js-cola/demo-constraints.html))
 
 
 The `cola` layout uses a [force-directed](http://en.wikipedia.org/wiki/Force-directed_graph_drawing) physics simulation with several sophisticated constraints, written by [Tim Dwyer](http://www.csse.monash.edu.au/~tdwyer/).  For more information about Cola and its parameters, refer to [its documentation](http://marvl.infotech.monash.edu/webcola/).
@@ -85,7 +85,7 @@ var defaults = {
   convergenceThreshold: 0.01, // when the alpha value (system energy) falls below this value, the layout stops
   nodeSpacing: function( node ){ return 10; }, // extra spacing around nodes
   flow: undefined, // use DAG/tree flow layout if specified, e.g. { axis: 'y', minSeparation: 30 }
-  alignment: undefined, // relative alignment constraints on nodes, e.g. function( node ){ return { x: 0, y: 1 } }
+  alignment: undefined, // relative alignment constraints on nodes, e.g. {vertical: [[{node: node1, offset: 0}, {node: node2, offset: 5}]], horizontal: [[{node: node3}, {node: node4}], [{node: node5}, {node: node6}]]}
   gapInequalities: undefined, // list of inequality constraints for the gap between the nodes, e.g. [{"axis":"y", "left":node1, "right":node2, "gap":25}]
 
   // different methods of specifying edge length

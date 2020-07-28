@@ -261,8 +261,8 @@ ColaLayout.prototype.run = function(){
     let dimensions = node.layoutDimensions( options );
 
     let struct = node.scratch().cola = {
-      x: options.randomize || pos.x === undefined ? Math.round( Math.random() * bb.w ) : pos.x,
-      y: options.randomize || pos.y === undefined ? Math.round( Math.random() * bb.h ) : pos.y,
+      x: (options.randomize && !node.locked()) || pos.x === undefined ? Math.round( Math.random() * bb.w ) : pos.x,
+      y: (options.randomize && !node.locked()) || pos.y === undefined ? Math.round( Math.random() * bb.h ) : pos.y,
       width: dimensions.w + 2*padding,
       height: dimensions.h + 2*padding,
       index: i,
@@ -277,46 +277,47 @@ ColaLayout.prototype.run = function(){
 
   if( options.alignment ){ // then set alignment constraints
 
-    let offsetsX = [];
-    let offsetsY = [];
-
-    nonparentNodes.forEach(function( node ){
-      let align = getOptVal( options.alignment, node );
-      let scrCola = node.scratch().cola;
-      let index = scrCola.index;
-
-      if( !align ){ return; }
-
-      if( align.x != null ){
-        offsetsX.push({
-          node: index,
-          offset: align.x
+    if(options.alignment.vertical) {
+      let verticalAlignments = options.alignment.vertical;
+      verticalAlignments.forEach(function(alignment){
+        let offsetsX = [];
+        alignment.forEach(function(nodeData){
+          let node = nodeData.node;
+          let scrCola = node.scratch().cola;
+          let index = scrCola.index;
+          offsetsX.push({
+            node: index,
+            offset: nodeData.offset ? nodeData.offset : 0
+          });
         });
-      }
-
-      if( align.y != null ){
-        offsetsY.push({
-          node: index,
-          offset: align.y
-        });
-      }
-    });
-
-    if( offsetsX.length > 0 ){
-      constraints.push({
-        type: 'alignment',
-        axis: 'x',
-        offsets: offsetsX
+        constraints.push({
+          type: 'alignment',
+          axis: 'x',
+          offsets: offsetsX
+        });        
       });
     }
 
-    if( offsetsY.length > 0 ){
-      constraints.push({
-        type: 'alignment',
-        axis: 'y',
-        offsets: offsetsY
+    if(options.alignment.horizontal) {
+      let horizontalAlignments = options.alignment.horizontal;
+      horizontalAlignments.forEach(function(alignment){
+        let offsetsY = [];
+        alignment.forEach(function(nodeData){
+          let node = nodeData.node;
+          let scrCola = node.scratch().cola;
+          let index = scrCola.index;
+          offsetsY.push({
+            node: index,
+            offset: nodeData.offset ? nodeData.offset : 0
+          });
+        });
+        constraints.push({
+          type: 'alignment',
+          axis: 'y',
+          offsets: offsetsY
+        });        
       });
-    }
+    } 
 
   }
 
