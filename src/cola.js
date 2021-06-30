@@ -464,7 +464,14 @@ ColaLayout.prototype.run = function(){
   adaptor
     .avoidOverlaps( options.avoidOverlap )
     .handleDisconnected( options.handleDisconnected )
-    .start( options.unconstrIter, options.userConstIter, options.allConstIter)
+    .start(
+      options.unconstrIter,
+      options.userConstIter,
+      options.allConstIter,
+      undefined, // gridSnapIterations = 0
+      undefined, // keepRunning = true
+      options.centerGraph
+    )
   ;
 
   if( !options.infinite ){

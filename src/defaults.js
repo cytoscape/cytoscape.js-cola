@@ -22,6 +22,8 @@ let defaults = {
   flow: undefined, // use DAG/tree flow layout if specified, e.g. { axis: 'y', minSeparation: 30 }
   alignment: undefined, // relative alignment constraints on nodes, e.g. function( node ){ return { x: 0, y: 1 } }
   gapInequalities: undefined, // list of inequality constraints for the gap between the nodes, e.g. [{"axis":"y", "left":node1, "right":node2, "gap":25}]
+  centerGraph: true, // adjusts the node positions initially to center the graph (pass false if you want to start the layout from the current position)
+
 
   // different methods of specifying edge length
   // each can be a constant numerical value or a function like `function( edge ){ return 2; }`
